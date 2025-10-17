@@ -1,0 +1,784 @@
+{
+	"info": {
+		"_postman_id": "casfid-books-api-collection",
+		"name": "Casfid Books API",
+		"description": "Colección de Postman para la API REST de libros de Casfid.\n\nLa API permite gestionar libros con enriquecimiento automático desde OpenLibrary.\n\n## Configuración\n\n1. **Variables de colección:**\n   - `baseUrl`: URL base del servidor (por defecto: http://localhost:8000)\n   - `jwtToken`: Token JWT para autenticación (dejar vacío si JWT está deshabilitado)\n\n2. **Obtener un token JWT:**\n   ```bash\n   ./bin/generate-jwt-token -u admin -r admin -e 3600\n   ```\n\n3. **Configurar el token:**\n   - Copia el token generado\n   - Pega en la variable `jwtToken` de la colección\n   - O edita cada request y añade el header: `Authorization: Bearer YOUR_TOKEN`\n\n## Autenticación\n\nLos endpoints POST, PUT y DELETE requieren autenticación JWT cuando está habilitada en el servidor (`JWT_ENABLED=true`).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Books",
+			"item": [
+				{
+					"name": "List All Books",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has data array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response has count property\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('count');",
+									"    pm.expect(jsonData.count).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							]
+						},
+						"description": "Obtiene la lista completa de libros sin filtros."
+					},
+					"response": [
+						{
+							"name": "Success - Empty List",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/books",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [],\n    \"count\": 0\n}"
+						},
+						{
+							"name": "Success - With Books",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/books",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"title\": \"Clean Code\",\n            \"author\": \"Robert C. Martin\",\n            \"isbn\": \"9780132350884\",\n            \"year\": 2008,\n            \"description\": \"A handbook of agile software craftsmanship\",\n            \"coverUrl\": \"https://covers.openlibrary.org/b/isbn/9780132350884-L.jpg\"\n        },\n        {\n            \"id\": 2,\n            \"title\": \"The Pragmatic Programmer\",\n            \"author\": \"Andrew Hunt\",\n            \"isbn\": \"9780201616224\",\n            \"year\": 1999,\n            \"description\": \"From journeyman to master\",\n            \"coverUrl\": \"https://covers.openlibrary.org/b/isbn/9780201616224-L.jpg\"\n        }\n    ],\n    \"count\": 2\n}"
+						}
+					]
+				},
+				{
+					"name": "Filter Books by Author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has data array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/books?author=Martin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "author",
+									"value": "Martin",
+									"description": "Filtro por autor (búsqueda parcial, case-insensitive)"
+								}
+							]
+						},
+						"description": "Filtra libros por autor. La búsqueda es parcial y case-insensitive."
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Books by Title",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/books?title=Clean",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "Clean",
+									"description": "Filtro por título (búsqueda parcial, case-insensitive)"
+								}
+							]
+						},
+						"description": "Filtra libros por título. La búsqueda es parcial y case-insensitive."
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Books by Author and Title",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/books?author=Martin&title=Clean",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "author",
+									"value": "Martin"
+								},
+								{
+									"key": "title",
+									"value": "Clean"
+								}
+							]
+						},
+						"description": "Filtra libros por autor Y título simultáneamente."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Book by ISBN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 404\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response has book data\", function () {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('data');",
+									"        pm.expect(jsonData.data).to.have.property('isbn');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/books/9780132350884",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"9780132350884"
+							]
+						},
+						"description": "Obtiene un libro específico por su ISBN."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/books/9780132350884",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books",
+										"9780132350884"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"title\": \"Clean Code\",\n        \"author\": \"Robert C. Martin\",\n        \"isbn\": \"9780132350884\",\n        \"year\": 2008,\n        \"description\": \"A handbook of agile software craftsmanship\",\n        \"coverUrl\": \"https://covers.openlibrary.org/b/isbn/9780132350884-L.jpg\"\n    }\n}"
+						},
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/books/9999999999999",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books",
+										"9999999999999"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Book with ISBN 9999999999999 not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Book (with auto-enrichment)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has success message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('created');",
+									"});",
+									"",
+									"pm.test(\"Response has book data with ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Clean Code\",\n    \"author\": \"Robert C. Martin\",\n    \"isbn\": \"978-0132350884\",\n    \"year\": 2008\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							]
+						},
+						"description": "Crea un libro nuevo con enriquecimiento automático desde OpenLibrary.\n\n**Requiere JWT si está habilitado en el servidor.**"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Clean Code\",\n    \"author\": \"Robert C. Martin\",\n    \"isbn\": \"978-0132350884\",\n    \"year\": 2008\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/books",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Book created successfully\",\n    \"data\": {\n        \"id\": 1,\n        \"title\": \"Clean Code\",\n        \"author\": \"Robert C. Martin\",\n        \"isbn\": \"9780132350884\",\n        \"year\": 2008,\n        \"description\": \"A handbook of agile software craftsmanship\",\n        \"coverUrl\": \"https://covers.openlibrary.org/b/isbn/9780132350884-L.jpg\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Book (without enrichment)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Mi Libro Personal\",\n    \"author\": \"Juan Pérez\",\n    \"isbn\": \"1234567890\",\n    \"year\": 2024,\n    \"description\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							]
+						},
+						"description": "Crea un libro sin enriquecimiento automático (description: false).\n\n**Requiere JWT si está habilitado en el servidor.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Book (with full data)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Domain-Driven Design\",\n    \"author\": \"Eric Evans\",\n    \"isbn\": \"978-0321125217\",\n    \"year\": 2003,\n    \"description\": \"Tackling Complexity in the Heart of Software\",\n    \"coverUrl\": \"https://covers.openlibrary.org/b/isbn/9780321125217-L.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							]
+						},
+						"description": "Crea un libro con todos los datos proporcionados manualmente.\n\n**Requiere JWT si está habilitado en el servidor.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Book (title only)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('updated');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Clean Code - Edición Revisada\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books/9780132350884",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"9780132350884"
+							]
+						},
+						"description": "Actualiza solo el título de un libro.\n\n**Requiere JWT si está habilitado en el servidor.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Book (multiple fields)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Clean Code - Second Edition\",\n    \"year\": 2020,\n    \"description\": \"Updated handbook of agile software craftsmanship\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books/9780132350884",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"9780132350884"
+							]
+						},
+						"description": "Actualiza múltiples campos de un libro.\n\n**Requiere JWT si está habilitado en el servidor.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Book (remove description)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books/9780132350884",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"9780132350884"
+							]
+						},
+						"description": "Elimina la descripción de un libro (usando false).\n\n**Requiere JWT si está habilitado en el servidor.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Book",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('deleted');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/books/9780132350884",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"9780132350884"
+							]
+						},
+						"description": "Elimina un libro por su ISBN.\n\n**Requiere JWT si está habilitado en el servidor.**"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/books/9780132350884",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books",
+										"9780132350884"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Book deleted successfully\"\n}"
+						},
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/books/9999999999999",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"books",
+										"9999999999999"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Book with ISBN 9999999999999 not found\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Endpoints para gestionar libros"
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Ping",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Verifica que el servidor esté funcionando."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwtToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "jwtToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
