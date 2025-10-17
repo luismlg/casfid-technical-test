@@ -15,7 +15,7 @@ This project follows **Hexagonal Architecture (Ports and Adapters)** with:
 - ✅ JWT authentication for write operations
 - ✅ OpenLibrary API integration for book descriptions
 - ✅ Event-driven architecture with domain events
-- ✅ Comprehensive unit tests (27 tests, 74 assertions)
+- ✅ Comprehensive unit tests (**30 tests, 83 assertions**, 100% passing)
 - ✅ OpenAPI/Swagger documentation
 - ✅ Docker support with MySQL database
 - ✅ Structured logging system
@@ -167,26 +167,97 @@ Expected response:
 
 ## Running Tests
 
-Execute the unit test suite inside the container:
+Execute the unit test suite:
 
 ```bash
-docker exec -it casfid-app ./vendor/bin/phpunit
+# Locally (recommended for development)
+vendor/bin/phpunit --testdox
+
+# Or with coverage
+vendor/bin/phpunit --coverage-html coverage
 ```
 
-Expected output:
+### Test Results
+
 ```
 PHPUnit 10.5.58 by Sebastian Bergmann and contributors.
-...........................  27 / 27 (100%)
-Tests: 27, Assertions: 74
+
+Runtime:       PHP 8.2.29
+Configuration: phpunit.xml.dist
+
+..............................                                    30 / 30 (100%)
+
+Time: 00:01.494, Memory: 10.00 MB
+
+✅ Create Book (5 tests)
+ ✔ It creates a book
+ ✔ It creates a book with description from provider
+ ✔ It creates a book with cover url
+ ✔ It throws exception when book already exists
+ ✔ It creates multiple different books
+
+✅ Delete Book (4 tests)
+ ✔ It deletes a book
+ ✔ It throws exception when book not found
+ ✔ It only deletes the specified book
+ ✔ It cannot delete the same book twice
+
+✅ Get Book (3 tests)
+ ✔ It returns book when exists
+ ✔ It throws exception when book not found
+ ✔ It validates isbn format
+
+✅ Get Books (8 tests)
+ ✔ It returns empty collection when no books
+ ✔ It returns all books
+ ✔ It searches by title
+ ✔ It searches by author
+ ✔ It searches by description
+ ✔ It searches is case insensitive
+ ✔ It returns multiple matching books
+ ✔ It returns empty when search does not match
+
+✅ OpenLibrary Integration (2 tests)
+ ✔ It can connect to open library api
+ ✔ It handles requests gracefully
+
+✅ Update Book (8 tests)
+ ✔ It updates book title
+ ✔ It updates book author
+ ✔ It updates book year
+ ✔ It updates book description
+ ✔ It updates book cover url
+ ✔ It updates multiple fields at once
+ ✔ It throws exception when book not found
+ ✔ It does not modify other books
+
+OK! Tests: 30, Assertions: 83
 ```
 
-### Run specific test files
+### Test Coverage
+
+The test suite includes:
+
+- **Unit Tests**: All use cases (Commands & Queries)
+- **Test Doubles**: Fakes for Repository and external services
+- **Object Mothers**: Test data builders for clean test setup
+- **Edge Cases**: Validations, exceptions, and error handling
+
+Coverage by layer:
+- ✅ **Application Layer**: 100% (all Commands and Queries)
+- ✅ **Domain Layer**: Value Objects validation
+- ✅ **Infrastructure Layer**: External service integration
+
+### Run specific tests
 ```bash
-# Test a specific class
-docker exec -it casfid-app ./vendor/bin/phpunit tests/Unit/Application/Command/CreateBook/CreateBookTest.php
+# Test a specific use case
+vendor/bin/phpunit tests/Unit/Application/Command/CreateBook/CreateBookTest.php
 
 # Test with verbose output
-docker exec -it casfid-app ./vendor/bin/phpunit --testdox
+vendor/bin/phpunit --testdox
+
+# Generate coverage report
+vendor/bin/phpunit --coverage-html coverage
 ```
 
 ## Technical Highlights
