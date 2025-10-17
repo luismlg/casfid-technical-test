@@ -1,0 +1,32 @@
+# Composer
+/vendor/
+composer.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+/logs/
+/var/logs/
+/var/cache/
+
+# Database
+*.sqlite
+*.db
+
+# PHPUnit
+/phpunit.xml
+/.phpunit.result.cache

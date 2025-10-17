@@ -1,0 +1,62 @@
+# .dockerignore
+# Archivos y directorios a excluir del contexto de Docker
+
+# Dependencias
+vendor/
+node_modules/
+
+# Cache y logs
+var/cache/
+var/logs/
+logs/
+*.log
+
+# Base de datos local
+database/
+*.sqlite
+*.db
+
+# Configuración local
+.env
+.env.local
+.env.*.local
+
+# Tests
+tests/
+phpunit.xml.dist
+.phpunit.result.cache
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+Dockerfile
+
+# Documentación de desarrollo
+docs/
+examples/
+README.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Otros
+*.md
+!composer.json
+!composer.lock
