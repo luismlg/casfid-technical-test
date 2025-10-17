@@ -1,0 +1,155 @@
+openapi: 3.1.0
+info:
+  title: Books API
+  version: 1.0.0
+  description: API for managing books (create, list, update, and delete).
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /books:
+    get:
+      summary: List books
+      description: Returns the list of all books. Allows filtering by author and title.
+      parameters:
+        - name: author
+          in: query
+          description: Filter by author.
+          required: false
+          schema:
+            type: string
+            example: "J.K. Rowling"
+        - name: title
+          in: query
+          description: Filter by title.
+          required: false
+          schema:
+            type: string
+            example: "Harry Potter"
+      responses:
+        '200':
+          description: List of books.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '400':
+          description: Bad Request Invalid input data. content.
+
+    post:
+      summary: Create a book
+      description: Creates a new book with the provided data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBook'
+      responses:
+        '201':
+          description: Book successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Bad Request Invalid input data. content.
+
+    put:
+      summary: Update a book
+      description: Updates the details of an existing book (identified by ISBN).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBook'
+      responses:
+        '200':
+          description: Book updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found.
+        '400':
+          description: Bad Request Invalid input data. content.
+
+  /books/{isbn}:
+    delete:
+      summary: Delete a book
+      description: Deletes a book by its ISBN.
+      parameters:
+        - name: isbn
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Book successfully deleted.
+        '404':
+          description: Book not found.
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Harry Potter and the Philosopher Stone"
+        author:
+          type: string
+          example: "J.K. Rowling"
+        isbn:
+          type: string
+          example: "978-0747532699"
+        year:
+          type: integer
+          example: 1997
+        description:
+          type: string
+          nullable: true
+          example: "First book of the Harry Potter series."
+      required:
+        - title
+        - author
+        - isbn
+        - year
+
+    CreateBook:
+      type: object
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        isbn:
+          type: string
+        year:
+          type: integer
+      required:
+        - title
+        - author
+        - isbn
+        - year
+
+    UpdateBook:
+      type: object
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        isbn:
+          type: string
+        year:
+          type: integer
+        description:
+          type: string
+          nullable: true

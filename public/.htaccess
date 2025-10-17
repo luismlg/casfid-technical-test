@@ -1,0 +1,22 @@
+RewriteEngine On
+
+# Pasar el header Authorization a PHP (requerido para JWT)
+# Apache por defecto no pasa este header a PHP por seguridad
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Permitir acceso a archivos estáticos (HTML, CSS, JS, imágenes, YAML, etc.)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Permitir acceso a directorios
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Redirigir todas las demás peticiones a index.php (rutas de la API)
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
