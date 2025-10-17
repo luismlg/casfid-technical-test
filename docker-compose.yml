@@ -1,0 +1,109 @@
+# docker-compose.yml para CASFID - API REST de Libros
+# Servicios: app (PHP/Apache), db (MySQL 8)
+
+services:
+  # Servicio de aplicación PHP
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: casfid-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      # Variables de entorno para la aplicación
+      - APP_ENV=docker
+      - APP_DEBUG=true
+      - LOG_LEVEL=debug
+      
+      # Base de datos MySQL
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=casfid
+      - DB_USERNAME=casfid_user
+      - DB_PASSWORD=casfid_password
+      
+      # JWT Authentication
+      - JWT_SECRET=1xFcT0ccjQaRIzL1Cf7L62OFEdGMYcGdA354LpMfsPU=
+      - JWT_ENABLED=false
+      - JWT_EXPIRATION=3600
+      
+      # OpenLibrary API
+      - OPENLIBRARY_BASE_URL=https://openlibrary.org
+      - OPENLIBRARY_TIMEOUT=5
+      - OPENLIBRARY_CONNECT_TIMEOUT=3
+      - OPENLIBRARY_MAX_RETRIES=3
+      
+      # Caché
+      - CACHE_TTL=3600
+      - CACHE_PATH=/var/www/html/cache
+    volumes:
+      # Montar código fuente (para desarrollo)
+      - ./src:/var/www/html/src
+      - ./public:/var/www/html/public
+      - ./config:/var/www/html/config
+      - ./routing:/var/www/html/routing
+      
+      # Volúmenes para persistencia
+      - casfid-cache:/var/www/html/cache
+      - casfid-logs:/var/www/html/logs
+      - casfid-database:/var/www/html/database
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - casfid-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 40s
+      retries: 3
+
+  # Servicio de base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: casfid-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: casfid
+      MYSQL_USER: casfid_user
+      MYSQL_PASSWORD: casfid_password
+    ports:
+      - "3306:3306"
+    volumes:
+      # Volumen para datos persistentes
+      - casfid-mysql-data:/var/lib/mysql
+      
+      # Script de inicialización
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      
+      # Configuración personalizada de MySQL
+      - ./docker/mysql.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    networks:
+      - casfid-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+# Volúmenes nombrados para persistencia
+volumes:
+  casfid-mysql-data:
+    driver: local
+  casfid-cache:
+    driver: local
+  casfid-logs:
+    driver: local
+  casfid-database:
+    driver: local
+
+# Red personalizada
+networks:
+  casfid-network:
+    driver: bridge
